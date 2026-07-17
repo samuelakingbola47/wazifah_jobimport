@@ -1,0 +1,35 @@
+name: Import Wazifah Jobs
+
+on:
+  schedule:
+    # Runs every 6 hours. Adjust as needed (cron is UTC).
+    - cron: "0 */6 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run importer
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+          WP_BASE_URL: ${{ secrets.WP_BASE_URL }}
+          WP_USERNAME: ${{ secrets.WP_USERNAME }}
+          WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
+          # Optional overrides — remove if you don't need them:
+          # LINKEDIN_SEARCH_URLS: '["https://www.linkedin.com/jobs/search/?keywords=..."]'
+          # APIFY_MAX_RESULTS: "3"
+          # DEFAULT_JOB_COUNTRY_ID: "153"
+          # DEFAULT_JOB_SECTOR_ID: "167"
+        run: python scripts/wazifah_job_importer.py
